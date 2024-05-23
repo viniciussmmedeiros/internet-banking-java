@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: kafka-service
+  kafka:
+    consumer:
+#      bootstrap-servers: localhost:9092
+#      bootstrap-servers: kafka-service:9092
+      bootstrap-servers: kafka:9092
+#      group-id: account-api-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
+#        spring.json.value.default.type: com.internetbanking.accountapi.kafka.TransactionOperationRequest
+#        spring.json.use.type.headers: false
+    producer:
+      bootstrap-servers: kafka:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+account:
+  service:
+    url: http://account-api:8080
+transaction:
+  service:
+    url: http://transaction-api:8080
+
+spring.openfeign.client.config.default.connectTimeout: 160000000
+spring.openfeign.client.config.default.readTimeout: 160000000
+feign.client.config.default.connectTimeout: 160000000
+feign.client.config.default.readTimeout: 160000000

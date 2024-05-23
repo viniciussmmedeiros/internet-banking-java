@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: account-api
+  datasource:
+#    url: jdbc:postgresql://localhost:5432/internet-banking
+    url: jdbc:postgresql://ib-db:5432/internet-banking
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+kafka.service.url: http://kafka-service:8080
+
+auth:
+#  url: http://localhost:8081
+  url: http://auth-api:8080
+  appId: b58092ca-1dec-4970-805e-cfb31eecfaf4
+server:
+#  port: 8082
+  error:
+    include-binding-errors: always
+    include-message: always

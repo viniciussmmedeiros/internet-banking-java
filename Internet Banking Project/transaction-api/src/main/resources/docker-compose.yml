@@ -1,0 +1,19 @@
+version: "3.0"
+services:
+  transaction-api:
+    build: .
+    ports:
+      - "8087:8080"
+    depends_on:
+      - postgres
+  postgres:
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=internet-banking
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  adminer:
+    image: adminer
+    ports:
+      - "8081:8080"

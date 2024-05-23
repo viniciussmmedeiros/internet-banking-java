@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: transaction-api
+  datasource:
+    url: jdbc:postgresql://ib-db:5432/internet-banking
+#    url: jdbc:postgresql://localhost:5432/internet-banking
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+kafka.service.url: http://kafka-service:8080
+
+spring.openfeign.client.config.default.connectTimeout: 160000000
+spring.openfeign.client.config.default.readTimeout: 160000000
+feign.client.config.default.connectTimeout: 160000000
+feign.client.config.default.readTimeout: 160000000
+logging.level.org.springframework.cloud.openfeign: DEBUG
+logging.level.feign: DEBUG
+
+account:
+  api:
+    url: http://account-api:8080
+#    url: http://localhost:8082
+server:
+#  port: 8083
+  error:
+    include-binding-errors: always
+    include-message: always

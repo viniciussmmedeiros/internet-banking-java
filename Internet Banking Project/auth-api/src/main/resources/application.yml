@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: auth-api
+  datasource:
+    url: jdbc:postgresql://auth-db:5432/auth-db
+#    url: jdbc:postgresql://localhost:5432/auth-db
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+jwt:
+  secret: auth-api-secret-key
+  expiration: 86400000
+server:
+#  port: 8081
+  error:
+    include-binding-errors: always
+    include-message: always
