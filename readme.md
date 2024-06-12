@@ -74,25 +74,25 @@ Without the builder, you need to pass all the attributes in the constructor, dep
 
 ### 1- (Context) - General representation of the system, considering user interactions.
 
-![Context Image](c4-context-new.png)
+![Context Image](./doc/c4-context-new.png)
 
 ### 2 - (Containers) - System detailing, with divisions in applications and detailing of possible technologies.
 
-![Containers Image](c4-container-new.png)
+![Containers Image](./doc/c4-container-new.png)
 
 ### 3 - (Components) - Container detailing, better presenting responsibilities and interactions. Also, including Kafka for communication between microservices that justify the use of asynchronous communication.
 
-![Final Version](c4-component-new.png)
+![Final Version](./doc/c4-component-new.png)
 
 ### Extra - Components - Idea of what the service would look like as a monolith, with its initial components.
 
-![Monolith Image](monolito-idea.png)
+![Monolith Image](./doc/monolito-idea.png)
 
 ### Kafka Studies
 
-![Kafka Image 1](kafka-1.png)
-![Kafka Image 2](kafka-2.png)
-![Kafka Image 3](kafka-3.png)
+![Kafka Image 1](./doc/kafka-1.png)
+![Kafka Image 2](./doc/kafka-2.png)
+![Kafka Image 3](./doc/kafka-3.png)
 
 ## Use Case Ideas (functionalities) used as a basis for development
 
@@ -252,25 +252,25 @@ Without the builder, all attributes need to be passed in the constructor, requir
 
 ### 1- (Context) - Representação geral do sistema, considerando as interações de usuários.
 
-![Context Image](c4-context-new.png)
+![Context Image](./doc/c4-context-new.png)
 
 ### 2 - (Containers) - Detalhamento do sistema, com divisões em aplicações e detalhamento de possíveis tecnologias.
 
-![Containers Image](c4-container-new.png)
+![Containers Image](./doc/c4-container-new.png)
 
 ### 3 - (Components) - Detalhamento dos containers, apresentando melhor as responsaiblidades e interações. Também, inclusão do kafka para a comunicação entre os microserviços que justificam o uso de comunicação assíncrona.
 
-![Final Version](c4-component-new.png)
+![Final Version](./doc/c4-component-new.png)
 
 ### Extra - Components - Ideia de como seria o serviço como um monolito, com seus componentes iniciais.
 
-![Monolito Image](monolito-idea.png)
+![Monolito Image](./doc/monolito-idea.png)
 
 ### Estudos do Kafka
 
-![Kafka Image 1](kafka-1.png)
-![Kafka Image 2](kafka-2.png)
-![Kafka Image 3](kafka-3.png)
+![Kafka Image 1](./doc/kafka-1.png)
+![Kafka Image 2](./doc/kafka-2.png)
+![Kafka Image 3](./doc/kafka-3.png)
 
 ## Ideias de use cases (funcionalidades) usados como base para o desenvolvimento
 
@@ -362,16 +362,16 @@ docker-compose exec ib-db psql -U postgres -d internet-banking -c "COPY branch(d
 
 ## Anonymous User (Usuário Anônimo)
 
-![AnonymousUser Image](anonymous-user-flow.png)
+![AnonymousUser Image](./doc/anonymous-user-flow.png)
 
 ## Logged-in User (Usuário Logado)
 
-![LoggedInUser Image](logged-in-user-flow.png)
+![LoggedInUser Image](./doc/logged-in-user-flow.png)
 
 ## Anonymous Admin (Admin Anônimo)
 
-![AnonymousAdmin Image](anonymous-admin-flow.png)
+![AnonymousAdmin Image](./doc/anonymous-admin-flow.png)
 
 ## Logged-in Admin (Admin Logado)
 
-![LoggedInAdmin Image](logged-in-admin-flow.png)
+![LoggedInAdmin Image](./doc/logged-in-admin-flow.png)
