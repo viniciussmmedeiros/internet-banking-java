@@ -17,4 +17,8 @@ public class CompleteTransactionRequest {
     private TransactionType type;
 
     private UUID payeeId;
+
+    private String payeeName;
+
+    private String payerName;
 }

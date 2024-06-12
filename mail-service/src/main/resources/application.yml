@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: mail-service
+  mail:
+#    host: localhost
+    host: mail-dev
+    port: 1025
+    username: username
+    password: password
+
+    properties:
+      mail:
+        smtp:
+          ssl:
+            trust: "*"
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
+
+server:
+#  port: 8090
+  error:
+    include-message: always
+    include-binding-errors: always

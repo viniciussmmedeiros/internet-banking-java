@@ -1,72 +1,278 @@
-English
-Portuguese
+# Internet Banking
 
-# Descrição
+[English](#english) | [Português](#português)
 
-Internet-banking é um sistema que oferece serviços financeiros, permitindo que clientes acessem suas contas e realizem transações de maneira eficiente e segura. Através desta plataforma também são oferecidas funcionalidades administrativas para que os gestores do banco possam realizar operações de controle.
-Plataforma desenvolvida com o objetivo de simular um sistema de internet-banking, com funcionalidades básicas de criação de contas, autenticação, transações, gerenciamento de chaves pix, consulta de extrato e gerenciamento de contas. Utilizando tecnologias relevantes, como Spring boot, JWT, Docker, etc.
+## English
 
-## Resumo funcionalidades
+## Table of Contents
 
-O sistema digital-banking deve permitir:
+- [Description and Purpose](#description-and-purpose)
+- [Diagrams](#diagrams)
+- [Use Cases](#use-cases)
+- [Services and Dependencies](#services-and-dependencies)
+- [Setup](#setup)
 
-- Criação e acesso autenticado de contas
-- Transações de diferentes tipos (entre contas, pix e pagamento de boletos)
-- Gerenciamento de chaves pix
-- Consulta de extrato
-- Gerenciamento de conta (usuário e admin)
+## Description and Purpose
 
-## C4
+This project aims to implement several functionalities of an internet banking system, capable of providing access to different banking institutions. The system should allow users to create accounts, log in, pay bills, transfer to other accounts, and check statements.
 
-### 1- (Context)
+The purpose is to learn and practice concepts of architecture, microservices development with Java Spring Boot, Docker, messaging, etc.
 
-![Context Image](image.png)
+Some of the topics studied:
 
-### 2 - (Containers)
+- **Docker**: A Dockerfile was created for each service, and a Docker Compose file to start all services together. This way, it is possible to set up the development environment with a single command, quickly and in isolation, without the need to install dependencies locally.
 
-![Containers Image](image-1.png)
+- **Microservices**: The application was divided into 5 services: Auth API, Account API, Transaction API, Kafka Service, and Branch API. The division was made to separate the responsibilities of each service, facilitating maintenance and scalability. OpenFeign and WebClient were used for communication between services. Managing DTOs is a challenge, as it is necessary to maintain low coupling while enabling communication between services.
 
-### 3 - (Components) internet-banking como monolito
+- **Kafka**: In the context of the application, asynchronous communication is necessary, given the scenario of banking transactions. Kafka was used, allowing the production and consumption of messages in topics, helping to ensure request delivery.
 
-![Monolith Image](image-2.png)
+- **Design Patterns (Builder)**: The builder pattern simplifies the creation of objects with many attributes. It was applied manually, with Lombok's @Builder and without builder, to show the difference and the ease the builder brings.
 
-### 3 - (Components) internet-banking como microserviços
+Manually, example with `BalanceUpdateRequest`:
 
-![Microservices Image](image-3.png)
+```java
+public class BalanceUpdateRequest
+private UUID payerId;
+...
+// class created normally with its attributes, and a constructor receiving a Builder
 
-![Final Version](simplified-version.png)
 
-### Services:
+            private BalanceUpdateRequest(Builder builder)
+            this.payerId = builder.payerId;
+            ...
 
-- **Auth API**
-- **Account Api**
-- **Transaction Api**
+        // Builder class created inside BalanceUpdateRequest, with the same attributes and methods to set them
+            public static class Builder
+            private UUID payerId;
+            ...
 
-### Technologies / Dependencies:
+            public Builder payerId(UUID payerId) {
+                this.payerId = payerId;
+                return this;
+            }
 
-- **Common**:
+      // To instantiate the object, just use:
+      // new BalanceUpdateRequest.Builder().attributeMethods().build()
+```
+
+Com o lombok, a classe é criada normalmente, e o @Builder é adicionado acima da classe. O lombok se encarrega de criar o Builder e os métodos para setar os atributos.
+Para instanciar é preciso apenas `new BalanceUpdateRequest().builder().Atributos().build()`
+
+Without the builder, you need to pass all the attributes in the constructor, depending, for example, on the order of the attributes, and if any attribute is optional, you need to create a constructor for each combination of attributes.
+
+- **Service Communication (OpenFeign and WebClient)**: OpenFeign and WebClient were used for communication between services. OpenFeign is a library that works through interfaces, making communication requests simpler. WebClient requires more configuration and was applied as an alternative.
+
+- **Unit Testing (Mockito, Spy, MockMvc)**: Mockito was used to mock objects and methods, Spy to actually test implementations, and MockMvc was used to generate test requests for controllers.
+
+- **Spring Security - JWT**: Spring Security was used for authentication and authorization, and JWT for token generation. The idea of the application is to have a service (Auth API) responsible for managing users at the authentication level, generating a token that can be used to access other services.
+
+- **Flyway**: Flyway was used to perform migrations, inserting data, and creating initial tables.
+
+## Diagrams
+
+**(C4 Model)**
+
+### 1- (Context) - General representation of the system, considering user interactions.
+
+![Context Image](c4-context-new.png)
+
+### 2 - (Containers) - System detailing, with divisions in applications and detailing of possible technologies.
+
+![Containers Image](c4-container-new.png)
+
+### 3 - (Components) - Container detailing, better presenting responsibilities and interactions. Also, including Kafka for communication between microservices that justify the use of asynchronous communication.
+
+![Final Version](c4-component-new.png)
+
+### Extra - Components - Idea of what the service would look like as a monolith, with its initial components.
+
+![Monolith Image](monolito-idea.png)
+
+### Kafka Studies
+
+![Kafka Image 1](kafka-1.png)
+![Kafka Image 2](kafka-2.png)
+![Kafka Image 3](kafka-3.png)
+
+## Use Case Ideas (functionalities) used as a basis for development
+
+1. **[User] Create Account**
+
+   - Description: User should be able to create an account.
+   - Pre-conditions: -
+   - Post-conditions: User will be authenticated and able to perform operations on their account.
+
+2. **[User] Log in**
+
+   - Description: User provides their credentials (agency, account, and password).
+   - Pre-conditions: The account must be registered.
+   - Post-conditions: The user will be authenticated and able to perform operations on their account. \*[User-Account | Admin]
+     - Pre-condition: Must be logged in.
+
+3. **[User-Account] Pay Bill**
+
+   - Description: User should be able to provide a bill code for payment.
+   - Pre-conditions: The user must have sufficient balance in the account.
+   - Post-conditions: The account balance should be updated correctly; the transaction should be recorded.
+
+4. **[User-Account] Transfer to Another Account**
+
+   - Description: User should be able to provide the details of another account and transfer the necessary amount.
+   - Pre-conditions: The user must be logged in, have sufficient balance in the account, and the receiving account must exist.
+   - Post-conditions: The balances of the sending and receiving accounts should be updated correctly; the transaction should be recorded.
+
+5. **[User-Account] Make a Deposit**
+
+   - Description: User should be able to deposit an amount into their account.
+   - Pre-conditions: The user must be logged in.
+   - Post-conditions: The account balance should be updated correctly; the transaction should be recorded.
+
+6. **[User-Account] Check Statement**
+
+   - Description: User should be able to check their account statement.
+   - Pre-conditions: -
+   - Post-conditions: -
+
+## Services and Dependencies
+
+- **Common Technologies and Dependencies**:
   Docker
   Java 17
   Spring Boot 3.2.5
   Spring Web
-  Spring Data JPA
-  PostgreSQL Driver
   Lombok
-  Swagger UI
+  Swagger UI - openapi
   Validation
 
 - **Auth API**:
   Spring Security
   JWT https://github.com/auth0/java-jwt
   H2 Database
+  Spring Data JPA
+  PostgreSQL Driver
 
-### Docker setup
+- **Account API**:
+  Flyway
 
-run `docker-compose up -d --build` to start the services
+- **Account API and Transaction API**:
+  Spring Data JPA
+  PostgreSQL Driver
+  OpenFeign
+  WebFlux
 
-change ports:
+- **Kafka Service**:
+  Spring Kafka
+  OpenFeign
 
-## Use Cases
+- **Mail Service**:
+  MailDev
+  OpenFeign
+
+- **Branch API**:
+  Flyway
+
+## Setup
+
+Run `docker-compose up -d --build`
+
+- Confirm that table creations and migrations are processed correctly at runtime.
+
+After running the migrations (docker logs flyway), run the following commands to populate the branches table:
+docker cp 'absolute-path/resources' ib-db:/tmp/resources
+
+docker-compose exec ib-db psql -U postgres -d internet-banking -c "COPY branch(data) FROM '/tmp/resources/branch-data.json' WITH (FORMAT csv, DELIMITER E'\x02', QUOTE E'\x01');"
+
+## Português
+
+## Sumário
+
+- [Descrição e propósito](#descrição-e-propósito)
+- [Diagramas](#diagramas)
+- [Use cases](#use-cases)
+- [Serviços e dependências](#serviços-e-dependências)
+- [Setup](#setup)
+
+## Descrição e propósito
+
+Este projeto tem como objetivo a implementação de algumas funcionalidades de um sistema de internet banking, capaz de proporcionar acesso a diferentes instituições bancárias . O sistema deve permitir que usuários possam criar contas, logar no sistema, pagar boletos, transferir para outras contas e consultar extratos.
+
+O propósito é aprender e praticar conceitos de arquitetura, desenvolvimento em microserviços com Java Spring Boot, uso de Docker, mensageria, etc.
+
+Alguns dos tópicos estudados
+
+- **Docker**: foi criado um dockerfile para cada serviço, e um docker-compose para subir todos os serviços juntos. Dessa maneira é possível subir o ambiente de desenvolvimento com um único comando, de maneira rápida e isolada, sem a necessidade de instalar dependências no ambiente local.
+
+- **Microserviços**: a aplicação foi dividida em 5 serviços: Auth API, Account API, Transaction API, Kafka Service e Branch API. A divisão foi feita a fim de separar as responsabilidades de cada serviço, de maneira a facilitar a manutenção e escalabilidade. Foi utilizado o OpenFeign e WebClient para comunicação entre os serviços. A divisão de dtos é um desafio, pois ao mesmo tempo que é necessário manter o baixo acoplamento, também é preciso viabilizar a comunicação entre os serviços.
+
+- **Kafka**: dentro do contexto da aplicação se faz necessária a comunicação assíncrona, dado o cenário de transações bancárias. Nesse sentido foi utilizado o kafka, permitindo a produção e consumo de mensagens em tópicos, ajudando a garantir a entrega das requisições.
+
+- **Design Patterns (Builder)**: o builder facilita a criação de objetos com muitos atributos. Foi aplicado de maneira manual, com o @Builder do lombok e sem builder, para mostrar a diferença e a facilidade que o builder traz.
+
+De maneira manual, exemplo com o BalanceUpdateRequest:
+
+```java
+public class BalanceUpdateRequest
+private UUID payerId;
+...
+// a classe foi criada normalmente com o seus atributos, e com um construtor recebendo um Builder
+
+            private BalanceUpdateRequest(Builder builder)
+            this.payerId = builder.payerId;
+            ...
+
+        // uma classe Builder foi criada dentro da classe BalanceUpdateRequest, com os mesmos atributos e métodos para setar os atributos
+            public static class Builder
+            private UUID payerId;
+            ...
+
+            public Builder payerId(UUID payerId) {
+                this.payerId = payerId;
+                return this;
+            }
+
+    Então, para instanciar o objeto, é preciso apenas new BalanceUpdateRequest.Builder().Atributos().build()
+```
+
+With Lombok, the class is created normally, and @Builder is added above the class. Lombok takes care of creating the Builder and the methods to set the attributes.
+To instantiate, just use `new BalanceUpdateRequest().builder().attributeMethods().build()`.
+
+Without the builder, all attributes need to be passed in the constructor, requiring, for example, the order of attributes, and if any attribute is optional, a constructor for each combination of attributes is needed.
+
+- **Comunicação entre serviços (OpenFeign e WebClient)**: foi utilizado o OpenFeign e WebClient para comunicação entre os serviços. O OpenFeign é uma biblioteca que funciona por meio de interfaces, tornando as requisições de comunicação mais simples. O WebClient requer uma maior configuração, aplicado como uma alternativa.
+
+- **Testes unitários (Mockito, Spy, MockMvc)**: foi utilizado o Mockito para mockar objetos e métodos, o Spy para realmente testar as implementações. O MockMvc foi utilizado para gerar requisições de teste para as controllers.
+
+- **Spring Security - JWT**: foi utilizado o Spring Security para autenticação e autorização, e o JWT para geração de tokens. A ideia da aplicação é ter um serviço (Auth API) responsável por gerenciar os usuários a nível de autenticação, gerando um token que possa ser utilizado para acessar os outros serviços.
+
+- **Flyway**: foi utilizado o flyway para realizar migrations, inserindo dados e criando tabelas iniciais.
+
+## Diagramas
+
+**(Modelo C4)**
+
+### 1- (Context) - Representação geral do sistema, considerando as interações de usuários.
+
+![Context Image](c4-context-new.png)
+
+### 2 - (Containers) - Detalhamento do sistema, com divisões em aplicações e detalhamento de possíveis tecnologias.
+
+![Containers Image](c4-container-new.png)
+
+### 3 - (Components) - Detalhamento dos containers, apresentando melhor as responsaiblidades e interações. Também, inclusão do kafka para a comunicação entre os microserviços que justificam o uso de comunicação assíncrona.
+
+![Final Version](c4-component-new.png)
+
+### Extra - Components - Ideia de como seria o serviço como um monolito, com seus componentes iniciais.
+
+![Monolito Image](monolito-idea.png)
+
+### Estudos do Kafka
+
+![Kafka Image 1](kafka-1.png)
+![Kafka Image 2](kafka-2.png)
+![Kafka Image 3](kafka-3.png)
+
+## Ideias de use cases (funcionalidades) usados como base para o desenvolvimento
 
 1. **[Usuário] Criar conta**
 
@@ -89,7 +295,7 @@ change ports:
 
 4. **[Usuário-Conta] Transferir para outra conta**
 
-   - Descrição: usuário deve poder fornecer os dados de outra conta (no mesmo banco) e transferir a quantia necessária.
+   - Descrição: usuário deve poder fornecer os dados de outra conta e transferir a quantia necessária.
    - Pré-condições: usuário deve estar logado, possuir saldo suficiente na conta e a conta de recebimento deve existir.
    - Pós-condições: saldos das contas de envio e recebimento devem estar atualizados corretamente; transação deve estar registrada.
 
@@ -105,67 +311,67 @@ change ports:
    - Pré-condições: -
    - Pós-condições: -
 
-[[titulo da aplicação]]
+## Serviços e dependências
 
---
+- **Tecnologias e dependências em comum**:
+  Docker
+  Java 17
+  Spring Boot 3.2.5
+  Spring Web
+  Lombok
+  Swagger UI - openapi
+  Validation
 
-links para a parte em portugues ou ingles
+- **Auth API**:
+  Spring Security
+  JWT https://github.com/auth0/java-jwt
+  H2 Database
+  Spring Data JPA
+  PostgreSQL Driver
 
-- [Portuguese](#portuguese)
-- [English](#english)
+- **Account API**:
+  Flyway
 
---
+- **Account API e Transaction API**:
+  Spring Data JPA
+  PostgreSQL Driver
+  OpenFeign
+  WebFlux
 
-sumário com links para as seções
+- **Kafka Service**:
+  Spring Kafka
+  OpenFeign
 
-- descrição e propósito
-- diagramas
-- use cases
-- serviços e dependências
-- docker setup
+- **Mail Service**:
+  MailDev
+  OpenFeign
 
---
+- **Branch API**:
+  Flyway
 
-[[breve descrição das funcionalidades gerais e propósito]]
+## Setup
 
-[[diagrama c4]]
+run `docker-compose up -d --build`
 
-[[diagrama kafka]]
+- Confirmar que as criações de tabelas e migrations são processadas corretamente em tempo de execução.
 
-Aplicação para colocar estudar e colocar em prática alguns conceitos e tecnologias, entre eles:
-Projeto de Arquitetura e documentação (C4)
-[[explicar brevemente o que é o C4 e como foi utilizado no projeto, assim como para projetar o kafka]]
+Após a execução das migrations (docker logs flyway), executar os comandos a seguir para popular a tabela de agências:
+docker cp 'path-absoluto/resources' ib-db:/tmp/resources
 
-Docker
-[[explicar brevemente como foi setado o dockerfile para cada serviço e então o compose para subir todos os serviços juntos]]
+docker-compose exec ib-db psql -U postgres -d internet-banking -c "COPY branch(data) FROM '/tmp/resources/branch-data.json' WITH (FORMAT csv, DELIMITER E'\x02', QUOTE E'\x01');"
 
-Microserviços
-[[explicar brevemente a escolha por microserviços e como foi feita a divisão dos serviços e detalhes como divisão ou não de dtos]]
+## Anonymous User (Usuário Anônimo)
 
-Kafka
-[[explicar brevemente o funcionamento do kafka e porque foi aplicado]]
+![AnonymousUser Image](anonymous-user-flow.png)
 
-Design Patterns (Builder)
-[[mostrar brevemente como o design pattern builder foi apliacado, exemplo que foi feito na mão, com @Builder do lombok e também
-sem builder, para mostrar a diferença e a facilidade que o builder traz]]
+## Logged-in User (Usuário Logado)
 
-Comunicação entre serviços (OpenFeign e WebClient)
-[[mostrar exemplo de código de comunicação entre serviços com OpenFeign e WebClient]]
+![LoggedInUser Image](logged-in-user-flow.png)
 
-Testes unitários (Mockito, Spy, MockMvc)
-[[explicar porque surgiu a necessidade do spy, mostrar o uso do mockmvc para testar as controllers e explicar o uso do mockito para mockar objetos]]
+## Anonymous Admin (Admin Anônimo)
 
-Spring Security - JWT
-[[explicar brevemente o funcionamento da auth-api e a geração de token jwt (boilerplate)]]
+![AnonymousAdmin Image](anonymous-admin-flow.png)
 
---
+## Logged-in Admin (Admin Logado)
 
-[[rascunho dos principais use cases]]
-
---
-
-[[serviços e dependências]]
-
---
-
-[[docker setup]]
+![LoggedInAdmin Image](logged-in-admin-flow.png)

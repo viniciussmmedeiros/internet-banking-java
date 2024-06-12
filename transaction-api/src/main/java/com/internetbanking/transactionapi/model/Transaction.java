@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -27,6 +28,12 @@ public class Transaction {
     private TransactionType type;
 
     private UUID payeeId;
+
+    private String payerName;
+
+    private String payeeName;
+
+    private LocalDateTime date;
 
     public Transaction(UUID payerId, BigDecimal amount, TransactionType type) {
         this.payerId = payerId;

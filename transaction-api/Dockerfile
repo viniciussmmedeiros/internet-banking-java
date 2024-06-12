@@ -1,4 +1,4 @@
-from maven AS builder
+FROM maven AS builder
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src

@@ -2,7 +2,7 @@ spring:
   application:
     name: account-api
   datasource:
-#    url: jdbc:postgresql://localhost:5432/internet-banking
+    #    url: jdbc:postgresql://localhost:5432/internet-banking
     url: jdbc:postgresql://ib-db:5432/internet-banking
     username: postgres
     password: postgres
@@ -10,15 +10,25 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-
-kafka.service.url: http://kafka-service:8080
+  servlet:
+    multipart.enabled: true
+  # flyway:
+  #   baselineOnMigrate: true
+  #   baselineVersion: 0
 
 auth:
-#  url: http://localhost:8081
+  #  url: http://localhost:8081
   url: http://auth-api:8080
   appId: b58092ca-1dec-4970-805e-cfb31eecfaf4
+
+kafka.service.url: http://kafka-service:8080
+#kafka.service.url: http://localhost:8091
+#mail.service.url: http://localhost:8090
+mail.service.url: http://mail-service:8080
+#confirmation-link.base.url: http://localhost:8082/accounts/verify-email?token=
+confirmation-link.base.url: http://localhost:8081/accounts/verify-email?token=
 server:
-#  port: 8082
+  #  port: 8082
   error:
     include-binding-errors: always
     include-message: always

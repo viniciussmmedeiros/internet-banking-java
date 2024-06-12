@@ -1,9 +1,7 @@
 package com.internetbanking.accountapi.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.internetbanking.accountapi.enums.AccountStatus;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,10 +15,13 @@ import java.util.UUID;
 @Builder
 @Data
 @Entity
-@Table(name = "accounts")
+@Table(name = "accounts", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"financialInstitutionId", "branch", "accountNumber"})
+})
 public class Account {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     private String firstName;
@@ -40,4 +41,17 @@ public class Account {
     private String accountNumber;
 
     private boolean isBlocked = false;
+
+    private boolean isEnabled;
+
+    @Enumerated(EnumType.STRING)
+    private AccountStatus status;
+
+    @Embedded
+    private Address address;
+
+    private byte[] selfieDocument;
+    private byte[] proofOfAddress;
+
+    private Long financialInstitutionId;
 }

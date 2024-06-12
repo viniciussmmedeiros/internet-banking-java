@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: branch-api
+  datasource:
+    #    url: jdbc:postgresql://localhost:5432/internet-banking
+    url: jdbc:postgresql://ib-db:5432/internet-banking
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  servlet:
+    multipart.enabled: true
+  # servlet:
+  #   multipart.enabled: true
+  # flyway:
+  #   baselineOnMigrate: true
+  #   baselineVersion: 0
+#server:
+#  port: 8095

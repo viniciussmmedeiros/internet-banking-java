@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Authentication Controller")
+@Tag(name = "Authentication Controller", description = "Handles authentication operations such as registration and login.")
 @RestController
 @RequestMapping("auth")
 public class AuthController {
@@ -27,7 +27,7 @@ public class AuthController {
         return authService.register(request);
     }
 
-    @Operation(summary = "Logs in a user and returns a token", method = "POST")
+    @Operation(summary = "Logs in a user and returns a token.", method = "POST")
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {

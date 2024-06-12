@@ -1,8 +1,8 @@
 package com.internetbanking.transactionapi.controller;
 
-import com.internetbanking.transactionapi.controller.request.DepositRequest;
-import com.internetbanking.transactionapi.controller.request.PayBilletRequest;
-import com.internetbanking.transactionapi.controller.request.TransferRequest;
+import com.internetbanking.transactionapi.controller.request.BranchAccountTransferRequest;
+import com.internetbanking.transactionapi.controller.request.PaymentRequest;
+import com.internetbanking.transactionapi.controller.request.PixTransferRequest;
 import com.internetbanking.transactionapi.controller.response.StatementResponse;
 import com.internetbanking.transactionapi.kafka.CompleteTransactionRequest;
 import com.internetbanking.transactionapi.service.TransactionService;
@@ -24,24 +24,24 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "Handles an intra-bank transfer.", method = "POST")
-    @PostMapping("/transfer")
-    public void transfer(@Valid @RequestBody TransferRequest request) {
-        transactionService.transferIntraBank(request);
+    @Operation(summary = "Handles an intra-bank transfer using branch and account information.", method = "POST")
+    @PostMapping("/transfer-branch-account")
+    public void transferBranchAccount(@Valid @RequestBody BranchAccountTransferRequest request) {
+        transactionService.transferBankAccount(request);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "Handles a billet payment.", method = "POST")
-    @PostMapping("/pay-billet")
-    public void payBillet(@Valid @RequestBody PayBilletRequest request) {
-        transactionService.payBillet(request);
+    @Operation(summary = "Process a pix transfer.", method = "POST")
+    @PostMapping("/transfer-pix")
+    public void transferPix(@RequestBody PixTransferRequest request) {
+        transactionService.transferPix(request);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "Handles a deposit in the user's own account.", method = "POST")
-    @PostMapping("/deposit")
-    public void deposit(@Valid @RequestBody DepositRequest request) {
-        transactionService.deposit(request);
+    @Operation(summary = "Process a payment.", method = "POST")
+    @PostMapping("/pay")
+    public void pay(@Valid @RequestBody PaymentRequest request) {
+        transactionService.pay(request);
     }
 
     @ResponseStatus(HttpStatus.ACCEPTED)
@@ -52,7 +52,7 @@ public class TransactionController {
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "Complete a transaction with the kafka-given data.", method = "POST")
+    @Operation(summary = "Completes a transaction using data provided by Account Api.", method = "POST")
     @PostMapping("/complete-transaction")
     public void completeTransaction(@Valid @RequestBody CompleteTransactionRequest request) {
         transactionService.completeTransaction(request);

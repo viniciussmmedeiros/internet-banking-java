@@ -6,7 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
-@OpenAPIDefinition(info = @Info(title = "Transaction API", version = "1", description = "API developed to handle bank transactions."))
+@OpenAPIDefinition(info = @Info(title = "Transaction API", version = "1", description = "An API developed to handle bank transactions."))
 @SpringBootApplication
 @EnableFeignClients
 public class TransactionApiApplication {

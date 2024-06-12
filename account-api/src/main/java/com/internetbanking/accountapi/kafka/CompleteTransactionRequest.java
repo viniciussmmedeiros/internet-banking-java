@@ -22,6 +22,10 @@ public class CompleteTransactionRequest {
 
     private UUID payeeId;
 
+    private String payeeName;
+
+    private String payerName;
+
     public CompleteTransactionRequest(UUID payerId, BigDecimal amount, TransactionType type) {
         this.payerId = payerId;
         this.amount = amount;

@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -16,7 +15,7 @@ public class StatementTransactionResponse {
 
     private Long id;
 
-    private UUID accountId;
+    private String payeePayerName;
 
     private BigDecimal amount;
 

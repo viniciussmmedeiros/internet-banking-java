@@ -8,6 +8,7 @@ import java.util.UUID;
 
 @Data
 public class UpdateBalanceDTO {
+
     private UUID accountId;
 
     private String accountNumber;

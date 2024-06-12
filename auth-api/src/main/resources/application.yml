@@ -10,9 +10,11 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
 jwt:
   secret: auth-api-secret-key
   expiration: 86400000
+
 server:
 #  port: 8081
   error:

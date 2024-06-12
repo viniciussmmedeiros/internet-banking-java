@@ -1,8 +1,8 @@
 package com.internetbanking.transactionapi.service;
 
-import com.internetbanking.transactionapi.controller.request.DepositRequest;
-import com.internetbanking.transactionapi.controller.request.PayBilletRequest;
-import com.internetbanking.transactionapi.controller.request.TransferRequest;
+import com.internetbanking.transactionapi.controller.request.BranchAccountTransferRequest;
+import com.internetbanking.transactionapi.controller.request.PaymentRequest;
+import com.internetbanking.transactionapi.controller.request.PixTransferRequest;
 import com.internetbanking.transactionapi.controller.response.StatementResponse;
 import com.internetbanking.transactionapi.controller.response.StatementTransactionResponse;
 import com.internetbanking.transactionapi.enums.TransactionDirection;
@@ -42,7 +42,7 @@ public class TransactionService {
     TransactionRepository transactionRepository;
 
     @Transactional
-    public void transferIntraBank(TransferRequest request) {
+    public void transferBankAccount(BranchAccountTransferRequest request) {
         AccountData payerAccount;
 
         try {
@@ -63,48 +63,66 @@ public class TransactionService {
                 .payerId(payerAccount.getId())
                 .accountNumber(request.getAccountNumber())
                 .branch(request.getBranch())
+                .financialInstitutionId(request.getFinancialInstitutionId())
                 .amount(request.getAmount())
                 .updateType(UpdateBalanceType.SUM_SUB)
-                .transactionType(TransactionType.INTRA_BANK_TRANSFER)
+                .transactionType(TransactionType.BANK_TRANSFER)
+                .build();
+
+        kafkaServiceClient.produceBalanceUpdateRequest(balanceUpdateRequest);
+    }
+
+    public void transferPix(PixTransferRequest request) {
+        AccountData payerAccount;
+
+        try {
+            payerAccount = getAccountDataById(request.getPayerId());
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payer account not found.", ex);
+        }
+
+        if (payerAccount.isBlocked()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account is blocked, cannot complete transfer.");
+        }
+
+        if (payerAccount.getBalance().compareTo(request.getAmount()) < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not enough balance to complete transfer.");
+        }
+
+        BalanceUpdateRequest balanceUpdateRequest = new BalanceUpdateRequest.Builder()
+                .payerId(payerAccount.getId())
+                .pixKey(request.getPixKey())
+                .amount(request.getAmount())
+                .updateType(UpdateBalanceType.SUM_SUB)
+                .transactionType(TransactionType.PIX_TRANSFER)
                 .build();
 
         kafkaServiceClient.produceBalanceUpdateRequest(balanceUpdateRequest);
     }
 
     @Transactional
-    public void payBillet(PayBilletRequest request) {
+    public void pay(PaymentRequest request) {
         AccountData account = getAccountDataById(request.getPayerId());
-        double amount = getBilletMockData(request.getBilletCode());
+        double amount = getBilletMockData(request.getCode());
 
         if(account.isBlocked()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account is blocked, cannot complete billet payment.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account is blocked, cannot complete payment.");
         }
 
         if(account.getBalance().compareTo(BigDecimal.valueOf(amount)) < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not enough balance to pay the billet.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not enough balance to perform the payment.");
         }
 
         BalanceUpdateRequest transactionMessage = new BalanceUpdateRequest.Builder()
                 .payerId(account.getId())
                 .amount(BigDecimal.valueOf(amount))
                 .updateType(UpdateBalanceType.SUB)
-                .transactionType(TransactionType.BILLET_PAYMENT)
+                .transactionType(TransactionType.PAYMENT)
                 .build();
 
         kafkaServiceClient.produceBalanceUpdateRequest(transactionMessage);
     }
-
-    public void deposit(DepositRequest request) {
-        BalanceUpdateRequest balanceRequest = new BalanceUpdateRequest.Builder()
-                .payerId(request.getPayerId())
-                .amount(request.getAmount())
-                .updateType(UpdateBalanceType.SUM)
-                .transactionType(TransactionType.DEPOSIT)
-                .build();
-
-        kafkaServiceClient.produceBalanceUpdateRequest(balanceRequest);
-    }
-
+    
     public StatementResponse getStatement(UUID accountId) {
         ArrayList<Transaction> result = transactionRepository.findAllByPayerIdOrPayeeId(accountId, accountId);
 
@@ -119,15 +137,10 @@ public class TransactionService {
             transactionDTO.setType(transaction.getType());
 
             if (accountId.equals(transaction.getPayerId())) {
-                transactionDTO.setAccountId(transaction.getPayerId());
-
-                if(transaction.getType() == TransactionType.DEPOSIT) {
-                    transactionDTO.setDirection(TransactionDirection.RECEIVED);
-                } else {
-                    transactionDTO.setDirection(TransactionDirection.SENT);
-                }
+                transactionDTO.setPayeePayerName(transaction.getPayeeName());
+                transactionDTO.setDirection(TransactionDirection.SENT);
             } else if (accountId.equals(transaction.getPayeeId())) {
-                transactionDTO.setAccountId(transaction.getPayeeId());
+                transactionDTO.setPayeePayerName(transaction.getPayerName());
                 transactionDTO.setDirection(TransactionDirection.RECEIVED);
             }
 
@@ -138,7 +151,7 @@ public class TransactionService {
     }
 
     public AccountData getAccountDataById(UUID accountId) {
-        String url = accountApiUrl + "/accounts/" + accountId.toString() + "/get-data";
+        String url = accountApiUrl + "/accounts/" + accountId.toString() + "/get-balance-data";
 
         return WebClient.create()
                 .get()
@@ -154,6 +167,10 @@ public class TransactionService {
         if(request.getPayeeId() != null) {
             transaction.setPayeeId(request.getPayeeId());
         }
+
+        transaction.setDate(LocalDateTime.now());
+        transaction.setPayeeName(request.getPayeeName());
+        transaction.setPayerName(request.getPayerName());
 
         transactionRepository.save(transaction);
     }

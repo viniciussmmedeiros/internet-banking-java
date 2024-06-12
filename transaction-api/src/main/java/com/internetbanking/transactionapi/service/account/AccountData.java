@@ -11,6 +11,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AccountData {
+
     private UUID id;
 
     private BigDecimal balance;

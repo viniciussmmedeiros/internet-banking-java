@@ -19,8 +19,12 @@ public class BalanceUpdateRequest {
 
     private BigDecimal amount;
 
+    private String pixKey;
+
     private UpdateBalanceType updateType;
 
     private TransactionType transactionType;
+
+    private Long financialInstitutionId;
 }
 

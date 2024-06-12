@@ -1,0 +1,16 @@
+spring:
+  application.name: branches
+  datasource:
+    url: jdbc:postgresql://localhost:5432/branch
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  flyway:
+    baselineOnMigrate: true
+    baselineVersion: 0
+
+server:
+  port: 8095

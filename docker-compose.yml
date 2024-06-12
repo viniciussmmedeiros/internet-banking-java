@@ -18,6 +18,17 @@ services:
       - ib-db
       - auth-api
       - kafka-service
+      - mail-service
+      - branch-api
+
+  flyway:
+    image: flyway/flyway
+    container_name: flyway
+    command: -url=jdbc:postgresql://ib-db:5432/internet-banking -schemas=public -user=postgres -password=postgres -X migrate
+    volumes:
+      - ./resources/db/migration/:/flyway/sql/
+    depends_on:
+      - ib-db
 
   transaction-api:
     container_name: transaction-api
@@ -50,6 +61,14 @@ services:
     ports:
       - "5434:5432"
 
+  branch-api:
+    container_name: branch-api
+    build: ./branch-api
+    ports:
+      - "8085:8080"
+    depends_on:
+      - ib-db
+
   zookeeper:
     image: wurstmeister/zookeeper
     container_name: zookeeper
@@ -80,3 +99,18 @@ services:
       - "8083:8080"
     depends_on:
       - kafka
+
+  mail-dev:
+    container_name: mail-dev
+    image: maildev/maildev
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+
+  mail-service:
+    container_name: mail-service
+    build: ./mail-service
+    ports:
+      - "8084:8080"
+    depends_on:
+      - mail-dev
