@@ -55,8 +55,8 @@ private UUID payerId;
       // new BalanceUpdateRequest.Builder().attributeMethods().build()
 ```
 
-Com o lombok, a classe é criada normalmente, e o @Builder é adicionado acima da classe. O lombok se encarrega de criar o Builder e os métodos para setar os atributos.
-Para instanciar é preciso apenas `new BalanceUpdateRequest().builder().Atributos().build()`
+With Lombok, the class is created normally, and @Builder is added above the class. Lombok takes care of creating the Builder and the methods to set the attributes.
+To instantiate, just use `new BalanceUpdateRequest().builder().attributeMethods().build()`.
 
 Without the builder, you need to pass all the attributes in the constructor, depending, for example, on the order of the attributes, and if any attribute is optional, you need to create a constructor for each combination of attributes.
 
@@ -233,10 +233,10 @@ private UUID payerId;
     Então, para instanciar o objeto, é preciso apenas new BalanceUpdateRequest.Builder().Atributos().build()
 ```
 
-With Lombok, the class is created normally, and @Builder is added above the class. Lombok takes care of creating the Builder and the methods to set the attributes.
-To instantiate, just use `new BalanceUpdateRequest().builder().attributeMethods().build()`.
+Com o lombok, a classe é criada normalmente, e o @Builder é adicionado acima da classe. O lombok se encarrega de criar o Builder e os métodos para setar os atributos.
+Para instanciar é preciso apenas `new BalanceUpdateRequest().builder().Atributos().build()`.
 
-Without the builder, all attributes need to be passed in the constructor, requiring, for example, the order of attributes, and if any attribute is optional, a constructor for each combination of attributes is needed.
+Sem o builder, todos os atributos devem ser passados no construtor, precisando, por exemplo, prestar atenção à ordem dos atributos, e se algum deles for opcional, será necessário um construtor para cada combincação de atributos.
 
 - **Comunicação entre serviços (OpenFeign e WebClient)**: foi utilizado o OpenFeign e WebClient para comunicação entre os serviços. O OpenFeign é uma biblioteca que funciona por meio de interfaces, tornando as requisições de comunicação mais simples. O WebClient requer uma maior configuração, aplicado como uma alternativa.
 
